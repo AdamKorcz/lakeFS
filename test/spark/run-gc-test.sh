@@ -11,10 +11,12 @@ _jq() {
 run_lakectl() {
   echo "lakectl variables: $@"
   docker-compose exec -T lakefs lakectl "$@"
+#  lakectl "$@"
 }
 
 run_gc () {
-  docker-compose run -v ${CLIENT_JAR}:/client/client.jar -T --no-deps --rm spark-submit bash -c "spark-submit -v --master spark://spark:7077 --class io.treeverse.clients.GarbageCollector -c spark.hadoop.lakefs.api.url=http://docker.lakefs.io:8000/api/v1 -c spark.hadoop.lakefs.api.access_key=\${TESTER_ACCESS_KEY_ID} -c spark.hadoop.lakefs.api.secret_key=\${TESTER_SECRET_ACCESS_KEY} -c spark.hadoop.fs.s3a.access.key=\${LAKEFS_BLOCKSTORE_S3_CREDENTIALS_ACCESS_KEY_ID} -c spark.hadoop.fs.s3a.secret.key=\${LAKEFS_BLOCKSTORE_S3_CREDENTIALS_SECRET_ACCESS_KEY} -c spark.sql.shuffle.partitions=7 -c spark.default.parallelism=13 /client/client.jar $1 us-east-1"
+#  docker-compose run -v ${CLIENT_JAR}:/client/client.jar -T --no-deps --rm spark-submit bash -c "spark-submit -v --master spark://spark:7077 --class io.treeverse.clients.GarbageCollector -c spark.hadoop.lakefs.api.url=http://docker.lakefs.io:8000/api/v1 -c spark.hadoop.lakefs.api.access_key=\${TESTER_ACCESS_KEY_ID} -c spark.hadoop.lakefs.api.secret_key=\${TESTER_SECRET_ACCESS_KEY} -c spark.hadoop.fs.s3a.access.key=\${LAKEFS_BLOCKSTORE_S3_CREDENTIALS_ACCESS_KEY_ID} -c spark.hadoop.fs.s3a.secret.key=\${LAKEFS_BLOCKSTORE_S3_CREDENTIALS_SECRET_ACCESS_KEY} -c spark.sql.shuffle.partitions=7 -c spark.default.parallelism=13 /client/client.jar $1 us-east-1"
+  docker-compose run -v ${CLIENT_JAR}:/client/client.jar -T --no-deps --rm spark-submit bash -c "spark-submit -v --packages org.apache.hadoop:hadoop-azure:3.2.1 --master spark://spark:7077 --class io.treeverse.clients.GarbageCollector -c spark.hadoop.lakefs.api.url=http://docker.lakefs.io:8000/api/v1 -c spark.hadoop.lakefs.api.access_key=\${TESTER_ACCESS_KEY_ID} -c spark.hadoop.lakefs.api.secret_key=\${TESTER_SECRET_ACCESS_KEY} -c spark.hadoop.fs.azure.account.key.\${LAKEFS_BLOCKSTORE_AZURE_STORAGE_ACCOUNT}.dfs.core.windows.net=\${LAKEFS_BLOCKSTORE_AZURE_STORAGE_ACCESS_KEY} -c spark.sql.shuffle.partitions=7 -c spark.default.parallelism=13 /client/client.jar $1 us-east-1"
 }
 
 clean_repo() {
